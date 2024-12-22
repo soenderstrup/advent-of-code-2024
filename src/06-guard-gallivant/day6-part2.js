@@ -7,7 +7,9 @@ const lines = data.split('\n').map((line) => line.trim())
 const map = lines.map((line) => line.split(''))
 
 let { row, col } = findGuardStartPosition(map)
-let distinctPositions = 0
+const rowGuardStart = row
+const colGuardStart = col
+let possibleLoops = 0
 const directions = [
     { rowDir: -1, colDir: 0 },
     { rowDir: 0, colDir: 1 },
@@ -16,25 +18,32 @@ const directions = [
 ]
 let direction = 0
 let isGuardOnMap = true
+const usedObstructionPositions = new Set()
+
 while (isGuardOnMap) {
     const { rowDir, colDir } = directions[direction]
-    const nextStep = map[row + rowDir]?.[col + colDir]
-    if (nextStep === undefined) isGuardOnMap = false
+    const nextRow = row + rowDir
+    const nextCol = col + colDir
+    const nextStep = map[nextRow]?.[nextCol]
+    if (nextStep === undefined) {
+        isGuardOnMap = false
+        break
+    }
 
     if (nextStep === '#') {
         direction = (direction + 1) % 4
     } else {
-        if (map[row][col] !== 'X') {
-            map[row][col] = 'X'
-            distinctPositions++
+        map[row][col] = 'X'
+        if (isLoop(row, col, direction)) {
+            possibleLoops++
         }
-        row += rowDir
-        col += colDir
+        row = nextRow
+        col = nextCol
     }
 }
 
-map.forEach((row) => console.log(row.join('')))
-console.log(distinctPositions)
+map.forEach((line) => console.log(line.join('')))
+console.log(possibleLoops)
 
 function findGuardStartPosition(map) {
     for (let row = 0; row < map.length; row++) {
@@ -44,4 +53,53 @@ function findGuardStartPosition(map) {
             }
         }
     }
+}
+
+function isLoop(row, col, dir) {
+    const { rowDir, colDir } = directions[dir]
+    const obstructionRow = row + rowDir
+    const obstructionCol = col + colDir
+    const obstructionPos = map[obstructionRow]?.[obstructionCol]
+    const obstructionPosInvalid =
+        obstructionPos !== '.' ||
+        (obstructionRow === rowGuardStart && obstructionCol === colGuardStart)
+    if (obstructionPosInvalid) {
+        return false
+    }
+    const obstructionKey = `${obstructionRow},${obstructionCol}`
+    if (usedObstructionPositions.has(obstructionKey)) {
+        return false
+    }
+    let isLoop = false
+    const loopPrevSteps = [{ row, col, dir }]
+    let isPossibleLoop = true
+    dir = (dir + 1) % 4
+    while (isPossibleLoop && !isLoop) {
+        const { rowDir, colDir } = directions[dir]
+        const nextRow = row + rowDir
+        const nextCol = col + colDir
+        const nextStep = map[nextRow]?.[nextCol]
+        if (nextStep === undefined) {
+            isPossibleLoop = false
+        }
+
+        if (nextStep === '#') {
+            dir = (dir + 1) % 4
+        } else {
+            if (
+                loopPrevSteps.some(
+                    (step) =>
+                        step.row === row && step.col === col && step.dir === dir
+                )
+            ) {
+                isLoop = true
+                usedObstructionPositions.add(obstructionKey)
+            } else {
+                loopPrevSteps.push({ row, col, dir })
+                row = nextRow
+                col = nextCol
+            }
+        }
+    }
+    return isLoop
 }
