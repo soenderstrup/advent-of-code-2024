@@ -5,22 +5,22 @@ const filePath = path.join(__dirname, 'input.txt')
 const data = new FileReader().read(filePath).split('')
 
 function format(diskMap) {
-    let denseFormat = ''
+    let denseFormat = []
     let ID = 0
     for (let i = 0; i < diskMap.length; i++) {
         const digit = Number(diskMap[i])
         for (let j = 0; j < digit; j++) {
             if (i % 2 === 0) {
-                denseFormat += ID
+                denseFormat.push(ID)
             } else {
-                denseFormat += '.'
+                denseFormat.push('.')
             }
         }
         if (i % 2 === 0) {
             ID++
         }
     }
-    return denseFormat.split('')
+    return denseFormat
 }
 
 function rearrange(blocksBefore) {
@@ -42,9 +42,6 @@ function rearrange(blocksBefore) {
     }
     return blocks
 }
-
-console.log(format(data))
-console.log(rearrange(format(data)).join(''))
 
 const blocks = format(data)
 const rearrangedBlocks = rearrange(blocks)
