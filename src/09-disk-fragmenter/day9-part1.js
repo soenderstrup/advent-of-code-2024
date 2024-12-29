@@ -49,8 +49,8 @@ let checksum = 0
 for (let i = 0; i < rearrangedBlocks.length; i++) {
     const block = rearrangedBlocks[i]
     if (block === '.') {
-        break
+        continue
     }
-    checksum += i * Number(block)
+    checksum += i * block
 }
 console.log(checksum)
