@@ -15,7 +15,7 @@ const map = new FileReader()
 function calcTrailRating(row, col, score = 0) {
     if (map[row]?.[col] !== score) {
         return 0
-    } else if (map[row][col] === 9 && score === 9) {
+    } else if (map[row][col] === 9) {
         return 1
     } else {
         const nextScore = score + 1

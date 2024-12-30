@@ -19,7 +19,7 @@ function getPosKey(row, col) {
 function calcTrailScore(row, col, score = 0, posKeys = new Set()) {
     if (map[row]?.[col] !== score) {
         return 0
-    } else if (map[row][col] === 9 && score === 9) {
+    } else if (map[row][col] === 9) {
         const posKey = getPosKey(row, col)
         if (!posKeys.has(posKey)) {
             posKeys.add(posKey)
